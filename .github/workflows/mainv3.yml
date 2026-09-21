@@ -16,36 +16,39 @@ jobs:
           ZIP=$(find . -maxdepth 1 -type f -name 'SSCStudyPro_v3_ReferenceUI*.zip' -print -quit)
 
           if [ -z "$ZIP" ]; then
-            echo "ERROR: SSCStudyPro_v3_ReferenceUI.zip was not found in the repository."
-            echo "Files in repository:"
+            echo "ERROR: v3 ZIP not found"
             ls -la
             exit 1
           fi
 
-          echo "Found project: $ZIP"
+          echo "Using: $ZIP"
           echo "ZIP_FILE=$ZIP" >> "$GITHUB_ENV"
 
-      - name: Extract v3 project
+      - name: Extract project
         run: |
           rm -rf build_project
           mkdir build_project
           unzip -q "$ZIP_FILE" -d build_project
 
-          echo "Extracted project:"
-          find build_project -maxdepth 4 -type f | sort
+      - name: Fix Android Gradle Plugin version
+        working-directory: build_project
+        run: |
+          sed -i "s/com.android.application' version '8.5.2'/com.android.application' version '8.6.1'/" build.gradle
+          echo "Updated build.gradle:"
+          cat build.gradle
 
-      - name: Set up Java 21
+      - name: Set up Java 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: '17'
 
-      - name: Set up Gradle
+      - name: Set up Gradle 8.7
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.7'
 
-      - name: Build debug APK
+      - name: Build APK
         working-directory: build_project
         run: |
           gradle assembleDebug --no-daemon --stacktrace
