@@ -8,16 +8,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Extract Android project
+      - name: Extract new StudyPro project
         run: |
-          unzip -o SSCStudyPro_v2.0_GitHubReady.zip
-
-      - name: Replace MainActivity with new UI
-        run: |
-          cp MainActivity.java app/src/main/java/com/sscstudymanager/MainActivity.java
+          unzip -o SSCStudyPro_v3_ReferenceUI.zip -d build_project
 
       - name: Set up Java 17
         uses: actions/setup-java@v4
@@ -31,6 +27,7 @@ jobs:
           gradle-version: '8.7'
 
       - name: Build APK
+        working-directory: build_project
         run: |
           gradle assembleDebug --no-daemon
 
@@ -38,4 +35,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: SSC-StudyPro-APK
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: build_project/app/build/outputs/apk/debug/app-debug.apk
